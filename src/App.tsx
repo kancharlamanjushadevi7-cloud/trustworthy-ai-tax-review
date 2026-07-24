@@ -9,6 +9,12 @@ const confidenceLabel = (confidence: number) => {
   return "Manual review required";
 };
 
+const confidenceTone = (confidence: number) => {
+  if (confidence >= 95) return "high";
+  if (confidence >= 75) return "medium";
+  return "low";
+};
+
 function App() {
   const [items, setItems] = useState<ReviewItem[]>(initialItems);
   const [selectedId, setSelectedId] = useState(1);
@@ -53,6 +59,20 @@ function App() {
 
   const pendingCount = items.filter((item) => item.decision === "pending").length;
   const reviewedCount = items.length - pendingCount;
+  const tone = confidenceTone(selected.confidence);
+
+  const timeline = [
+    "Document uploaded",
+    "Document classified",
+    "Fields extracted",
+    "Cross-checks completed",
+    selected.status === "Manual review"
+      ? "Uncertainty detected"
+      : "Recommendation generated",
+    selected.decision === "pending"
+      ? "Waiting for CPA review"
+      : `CPA marked item ${selected.decision}`
+  ];
 
   return (
     <div className="app-shell">
@@ -170,23 +190,59 @@ function App() {
               </span>
             </div>
 
-            <div className="value-card">
-              <div>
-                <span>AI-extracted value</span>
-                <strong>{selected.correctedValue ?? selected.value}</strong>
-                {selected.correctedValue && (
-                  <small>Original AI value: {selected.value}</small>
-                )}
+            <div className="trust-summary">
+              <div className="trust-summary-header">
+                <div>
+                  <span className="section-kicker">AI recommendation</span>
+                  <h3>
+                    {selected.status === "Ready to approve"
+                      ? "Approve this value"
+                      : selected.status === "Manual review"
+                      ? "Verify manually before using"
+                      : "Review the flagged detail, then approve"}
+                  </h3>
+                </div>
+                <span className="ai-pill">AI-generated</span>
               </div>
-              <div className="confidence-block">
-                <strong>{selected.confidence}%</strong>
-                <span>{confidenceLabel(selected.confidence)}</span>
+
+              <div className="trust-grid">
+                <div>
+                  <span>Extracted value</span>
+                  <strong>{selected.correctedValue ?? selected.value}</strong>
+                  {selected.correctedValue && (
+                    <small>Original AI value: {selected.value}</small>
+                  )}
+                </div>
+
+                <div>
+                  <span>Confidence</span>
+                  <strong>{selected.confidence}%</strong>
+                  <small>{confidenceLabel(selected.confidence)}</small>
+                </div>
+              </div>
+
+              <div className={`confidence-meter ${tone}`}>
+                <div style={{ width: `${selected.confidence}%` }} />
+              </div>
+              <div className="confidence-legend">
+                <span>Low</span>
+                <span>Medium</span>
+                <span>High</span>
               </div>
             </div>
 
-            <div className="alert-box">
-              <strong>Why this needs attention</strong>
-              <p>{selected.warning}</p>
+            <div className={`uncertainty-card ${tone}`}>
+              <div>
+                <span className="section-kicker">Uncertainty</span>
+                <strong>{selected.warning}</strong>
+              </div>
+              <span className="uncertainty-level">
+                {tone === "high"
+                  ? "Low risk"
+                  : tone === "medium"
+                  ? "Medium risk"
+                  : "High risk"}
+              </span>
             </div>
 
             <div className="explanation-card">
@@ -205,6 +261,27 @@ function App() {
 
               <h3>Recommended next action</h3>
               <p>{selected.recommendation}</p>
+            </div>
+
+            <div className="timeline-card">
+              <h3>AI processing timeline</h3>
+              <div className="timeline">
+                {timeline.map((step, index) => (
+                  <div className="timeline-item" key={step}>
+                    <span className="timeline-dot">{index + 1}</span>
+                    <div>
+                      <strong>{step}</strong>
+                      <small>
+                        {index < timeline.length - 1
+                          ? "Completed"
+                          : selected.decision === "pending"
+                          ? "Current step"
+                          : "Recorded"}
+                      </small>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {selected.decision !== "pending" && (
