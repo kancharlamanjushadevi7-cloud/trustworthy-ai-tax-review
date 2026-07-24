@@ -62,16 +62,48 @@ function App() {
   const tone = confidenceTone(selected.confidence);
 
   const timeline = [
-    "Document uploaded",
-    "Document classified",
-    "Fields extracted",
-    "Cross-checks completed",
-    selected.status === "Manual review"
-      ? "Uncertainty detected"
-      : "Recommendation generated",
-    selected.decision === "pending"
-      ? "Waiting for CPA review"
-      : `CPA marked item ${selected.decision}`
+    { label: "Document uploaded", state: "done" },
+    { label: "OCR completed", state: "done" },
+    { label: "Document classified as W-2", state: "done" },
+    { label: "Fields extracted", state: "done" },
+    { label: "Validation completed", state: "done" },
+    {
+      label:
+        selected.status === "Ready to approve"
+          ? "No material issue detected"
+          : selected.warning,
+      state: selected.status === "Ready to approve" ? "done" : "warning"
+    },
+    {
+      label:
+        selected.decision === "pending"
+          ? "Waiting for CPA review"
+          : `CPA marked item ${selected.decision}`,
+      state: "current"
+    }
+  ];
+
+  const auditEvents = [
+    { time: "2:14 PM", text: `AI extracted ${selected.field}` },
+    { time: "2:15 PM", text: `Evidence linked to ${selected.source}` },
+    {
+      time: "2:16 PM",
+      text:
+        selected.status === "Ready to approve"
+          ? "Validation completed with no material issue"
+          : "AI flagged uncertainty for human review"
+    },
+    ...(selected.decision === "pending"
+      ? []
+      : [
+          {
+            time: "2:18 PM",
+            text:
+              selected.decision === "corrected"
+                ? `CPA corrected value to ${selected.correctedValue}`
+                : `CPA marked item ${selected.decision}`
+          }
+        ])
   ];
 
   return (
@@ -251,14 +283,51 @@ function App() {
                 <span>AI-generated</span>
               </div>
               <p>{selected.explanation}</p>
+            </div>
 
-              <h3>Evidence</h3>
-              <ul>
-                {selected.evidence.map((evidence) => (
-                  <li key={evidence}>{evidence}</li>
-                ))}
-              </ul>
+            <div className="why-card">
+              <h3>Why the AI made this recommendation</h3>
+              <p>
+                The extracted value is supported by the source document and identity checks.
+                The recommendation changes based on the uncertainty shown below.
+              </p>
+              <div className="reason-row">
+                <span>Source</span>
+                <strong>{selected.source} · Page {selected.page} · {selected.section}</strong>
+              </div>
+              <div className="reason-row">
+                <span>Mapped field</span>
+                <strong>{selected.form}</strong>
+              </div>
+              <div className="reason-row">
+                <span>Decision logic</span>
+                <strong>
+                  {selected.status === "Ready to approve"
+                    ? "Evidence is consistent and no material issue was found."
+                    : selected.status === "Manual review"
+                    ? "Low extraction certainty requires manual verification."
+                    : "Evidence supports the value, but one mismatch requires review."}
+                </strong>
+              </div>
+            </div>
 
+            <div className="evidence-card-grid">
+              {selected.evidence.map((evidence, index) => (
+                <div className="evidence-card" key={evidence}>
+                  <span className="evidence-icon">{index === selected.evidence.length - 1 && selected.status !== "Ready to approve" ? "!" : "✓"}</span>
+                  <div>
+                    <strong>{evidence}</strong>
+                    <small>
+                      {index === selected.evidence.length - 1 && selected.status !== "Ready to approve"
+                        ? "Partial match"
+                        : "Matched"}
+                    </small>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="recommended-action-card">
               <h3>Recommended next action</h3>
               <p>{selected.recommendation}</p>
             </div>
@@ -267,18 +336,32 @@ function App() {
               <h3>AI processing timeline</h3>
               <div className="timeline">
                 {timeline.map((step, index) => (
-                  <div className="timeline-item" key={step}>
-                    <span className="timeline-dot">{index + 1}</span>
+                  <div className={`timeline-item ${step.state}`} key={`${step.label}-${index}`}>
+                    <span className="timeline-dot">
+                      {step.state === "warning" ? "!" : index + 1}
+                    </span>
                     <div>
-                      <strong>{step}</strong>
+                      <strong>{step.label}</strong>
                       <small>
-                        {index < timeline.length - 1
-                          ? "Completed"
-                          : selected.decision === "pending"
+                        {step.state === "current"
                           ? "Current step"
-                          : "Recorded"}
+                          : step.state === "warning"
+                          ? "Attention needed"
+                          : "Completed"}
                       </small>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="audit-history-card">
+              <h3>Audit history</h3>
+              <div className="audit-events">
+                {auditEvents.map((event) => (
+                  <div className="audit-event" key={`${event.time}-${event.text}`}>
+                    <span>{event.time}</span>
+                    <strong>{event.text}</strong>
                   </div>
                 ))}
               </div>
