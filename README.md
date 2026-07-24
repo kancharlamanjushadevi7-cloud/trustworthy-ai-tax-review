@@ -1,65 +1,108 @@
-# GreenLedger AI Review
+# GreenLedger AI Tax Review
 
-A working frontend prototype for the **Trustworthy AI** challenge in the AI Engineer case study.
+## Overview
 
-## What this prototype demonstrates
+GreenLedger AI Tax Review is a frontend prototype designed for the Trustworthy AI challenge.
 
-- AI-extracted tax values with confidence levels
-- Clear explanations of what the AI did
-- Source evidence and document traceability
-- Human approval, rejection, and correction workflows
-- Preserved audit history
-- Multiple edge cases, including high confidence, medium confidence, and manual review
+The application demonstrates how AI can assist tax professionals by extracting information from tax documents while keeping humans in control of every important decision.
 
-## What is real
+Instead of asking users to blindly trust AI, the interface explains:
 
-- The full React interface
-- Filtering and queue selection
-- Approve and reject actions
-- Correction workflow
-- Source document panel
-- Review progress updates
-- Client-side state changes
+- What the AI did
+- Why it made a recommendation
+- What evidence supports the recommendation
+- What uncertainty exists
+- What action the reviewer should take
+- How users can correct the AI while maintaining a complete audit trail
 
-## What is simulated
+---
 
-- Tax documents
-- OCR and document extraction
-- AI confidence scores
-- AI explanations and recommendations
-- Backend persistence and authentication
+## Problem
 
-The case study explicitly allows mocked data and simulated AI output. The design focuses on transparency, uncertainty, evidence, and human control.
+Tax professionals spend significant time manually reviewing AI-extracted information from tax documents.
 
-## Run locally
+The challenge is to build an interface that increases confidence in AI decisions without hiding uncertainty.
 
-```bash
-npm install
-npm run dev
-```
+---
 
-## Build
+## Solution
 
-```bash
-npm run build
-```
+The application provides a human-in-the-loop review workflow where reviewers can:
 
-## Deploy on Vercel
+- Review AI extracted values
+- View confidence scores
+- Understand AI reasoning
+- Inspect supporting evidence
+- View document traceability
+- Review uncertainty
+- Correct AI outputs
+- Approve or reject recommendations
+- Maintain an audit history
 
-1. Push this project to GitHub.
-2. Sign in to Vercel.
-3. Click **Add New → Project**.
-4. Import the GitHub repository.
-5. Keep the default Vite settings.
-6. Click **Deploy**.
+---
 
-## Suggested video walkthrough
+## Key Features
 
-1. Explain the review queue and confidence-based prioritization.
-2. Open the medium-confidence wage item.
-3. Show the AI explanation, evidence, warning, and recommendation.
-4. Open the source document and explain traceability.
-5. Approve one item.
-6. Edit another item and explain the audit trail.
-7. Show the low-confidence manual-review case.
-8. Close by explaining what is functional and what is simulated.
+### AI Recommendation
+
+Provides the AI's suggested action together with confidence information.
+
+### Explainability
+
+Shows what the AI did and why it reached its recommendation.
+
+### Evidence
+
+Displays supporting evidence from the source document.
+
+### Traceability
+
+Links extracted values back to the exact document location.
+
+### Human Review
+
+Allows reviewers to approve, reject, or correct AI outputs.
+
+### Audit History
+
+Records reviewer actions to maintain transparency.
+
+---
+
+## Tech Stack
+
+- React
+- TypeScript
+- CSS
+- Vite
+- Vercel
+
+---
+
+## Mock Data
+
+This prototype uses simulated tax documents and AI outputs.
+
+No backend or production AI model is connected.
+
+---
+
+## Future Improvements
+
+- Live OCR integration
+- Amazon Bedrock/OpenAI integration
+- Real PDF rendering
+- Multi-document review
+- User authentication
+- Reviewer collaboration
+- Analytics dashboard
+
+---
+
+## Live Demo
+
+Vercel Deployment
+
+## Repository
+
+GitHub Repository
