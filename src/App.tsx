@@ -165,7 +165,7 @@ function App() {
                 <p className="eyebrow">{selected.form}</p>
                 <h2>{selected.field}</h2>
               </div>
-              <span className={`status-badge status-${selected.status.replaceAll(" ", "-").toLowerCase()}`}>
+              <span className={`status-badge status-${selected.status.replace(/ /g, "-").toLowerCase()}`}>
                 {selected.status}
               </span>
             </div>
